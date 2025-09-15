@@ -139,4 +139,6 @@ static String symnames[] = new String[100];
   symnames[sym.LSHIFT] = "LSHIFT";
   symnames[sym.TYPEDEF] = "TYPEDEF";
   symnames[sym.AUTO] = "AUTO";
+  symnames[sym.UNSIGNED] = "UNSIGNED";
+  symnames[sym.SIGNED] = "SIGNED";
 }}

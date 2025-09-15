@@ -44,8 +44,8 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 
 
 %%
-[ \t\r\f]+         { /* skip */ }
-\n	{newline();}
+\n                  { newline(); }
+[\t\r\f\040]+       { /* skip whitespace (040 is octal for space) */ }
 
 "auto" {return tok(sym.AUTO, null);}
 "break" {return tok(sym.BREAK, null);}
@@ -119,7 +119,7 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 "&=" {return tok(sym.BWISEANDASSIGN, null);}
 "^=" {return tok(sym.BWISEXORASSIGN, null);}
 "|=" {return tok(sym.BWISEORASSIGN, null);}
-","	{return tok(sym.COMMA, null);}
+"," {return tok(sym.COMMA, null);}
 
 
-. { err("Illegal character: " + yytext()); }
+. { err("Illegal character: " + yytext(); }
