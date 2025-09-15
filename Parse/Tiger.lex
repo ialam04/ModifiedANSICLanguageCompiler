@@ -50,3 +50,5 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 \n	{newline();}
 ","	{return tok(sym.COMMA, null);}
 . { err("Illegal character: " + yytext()); }
+"auto" {return tok(sym.auto, null);}
+"if" {return tok(sym.if, null);}
