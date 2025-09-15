@@ -46,7 +46,6 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 %%
 [ \t\r\f]+         { /* skip */ }
 \n	{newline();}
-","	{return tok(sym.COMMA, null);}
 
 "auto" {return tok(sym.AUTO, null);}
 "break" {return tok(sym.BREAK, null);}
@@ -83,7 +82,44 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 
 "[" {return tok(sym.LBRACK, null);}
 "]" {return tok(sym.RBRACK, null);}
+"(" {return tok(sym.LPAREN, null);}
+")" {return tok(sym.RPAREN, null);}
+"." {return tok(sym.PERIOD, null);}
+"->" {return tok(sym.ARROW, null);}
+"++" {return tok(sym.INCREMENT, null);}
+"--" {return tok(sym.DECREMENT, null);}
+"&" {return tok(sym.BITWISEAND, null);}
+"*" {return tok(sym.TIMES, null);}
+"+" {return tok(sym.PLUS, null);}
+"-" {return tok(sym.MINUS, null);}
+"~" {return tok(sym.TILDE, null);}
+"/" {return tok(sym.DIVIDE, null);}
+"%" {return tok(sym.MODULUS, null);}
+"<<" {return tok(sym.LSHIFT, null);}
+">>" {return tok(sym.RSHIFT, null);}
+"<" {return tok(sym.LT, null);}
 ">" {return tok(sym.GT, null);}
+"<=" {return tok(sym.LE, null);}
+">=" {return tok(sym.GE, null);}
 "==" {return tok(sym.EQ, null);}
+"!=" {return tok(sym.NEQ, null);}
+"^" {return tok(sym.BWISEXOR, null);}
+"|" {return tok(sym.BWISEOR, null);}
+"&&" {return tok(sym.AND, null);}
+"||" {return tok(sym.OR, null);}
+":" {return tok(sym.COLON, null);}
+"=" {return tok(sym.ASSIGN, null);}
+"*=" {return tok(sym.MULASSIGN, null);}
+"/=" {return tok(sym.DIVASSIGN, null);}
+"%=" {return tok(sym.MODASSIGN, null);}
+"+=" {return tok(sym.ADDASSIGN, null);}
+"-=" {return tok(sym.SUBASSIGN, null);}
+"<<=" {return tok(sym.LSHIFTASSIGN, null);}
+">>=" {return tok(sym.RSHIFTASSIGN, null);}
+"&=" {return tok(sym.BWISEANDASSIGN, null);}
+"^=" {return tok(sym.BWISEXORASSIGN, null);}
+"|=" {return tok(sym.BWISEORASSIGN, null);}
+","	{return tok(sym.COMMA, null);}
+
 
 . { err("Illegal character: " + yytext()); }
