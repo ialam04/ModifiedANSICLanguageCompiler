@@ -83,6 +83,10 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 0[0-7]*            { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext(),8)); }
 [1-9][0-9]*        { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext())); }
 
+";" {return tok(sym.SEMICOLON, null);}
+"{" {return tok(sym.LBRACE, null);}
+"}" {return tok(sym.RBRACE, null);}
+"..." {return tok(sym.ELIPSES, null);}
 "[" {return tok(sym.LBRACK, null);}
 "]" {return tok(sym.RBRACK, null);}
 "(" {return tok(sym.LPAREN, null);}
