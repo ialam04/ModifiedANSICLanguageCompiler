@@ -78,7 +78,10 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 "while" {return tok(sym.WHILE, null);}
 
 [a-zA-Z_][a-zA-Z0-9_]*  { return tok(sym.ID, yytext()); }
-[0-9]+     { return tok(sym.INT, Integer.valueOf(yytext())); }
+
+0[xX][0-9a-fA-F]+  { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext().substring(2),16)); }
+0[0-7]*            { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext(),8)); }
+[1-9][0-9]*        { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext())); }
 
 "[" {return tok(sym.LBRACK, null);}
 "]" {return tok(sym.RBRACK, null);}
