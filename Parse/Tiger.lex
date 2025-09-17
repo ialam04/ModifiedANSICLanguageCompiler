@@ -8,7 +8,13 @@ import ErrorMsg.ErrorMsg;
 %type java_cup.runtime.Symbol
 %char
 
+%state STRING
+%state CHAR
+
 %{
+
+private StringBuffer string = new StringBuffer();
+
 private void newline() {
   errorMsg.newline(yychar);
 }
@@ -38,14 +44,43 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 
 %}
 
+
+
 %eofval{
   return tok(sym.EOF, null);
 %eofval}
 
 
 %%
+
 \n                  { newline(); }
 [\t\r\f\040]+       { /* skip whitespace (040 is octal for space) */ }
+
+<YYINITIAL>\" {string.setLength(0); yybegin(STRING);}
+<YYINITIAL>\' {string.setLength(0); yybegin(CHAR);}
+
+<STRING> [^\"\\\n]+ {string.append(yytext());}
+
+<STRING> \\. {string.append(yytext());}
+
+<STRING> \" {
+    yybegin(YYINITIAL);
+    return tok(sym.STRING_LITERAL, string.toString());
+  }
+
+<CHAR> [^\'\\\n]+ {string.append(yytext());}
+
+<CHAR> \\. {string.append(yytext());}
+
+<CHAR> \' {
+    if (string.length() == 0) {
+      err("empty character literal");
+      yybegin(YYINITIAL);
+      return tok(sym.error, null);
+    }
+    yybegin(YYINITIAL);
+    return tok(sym.CHAR_LITERAL, string.toString());
+  }
 
 "auto" {return tok(sym.AUTO, null);}
 "break" {return tok(sym.BREAK, null);}
@@ -122,4 +157,4 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 "," {return tok(sym.COMMA, null);}
 
 
-. { err("Illegal character: " + yytext(); }
+. { err("Illegal character: " + yytext()); }

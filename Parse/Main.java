@@ -42,6 +42,8 @@ public class Main {
 
 	 case sym.STRING_LITERAL: extra = " \"" + tok.value + "\""; break;
 
+	 case sym.CHAR_LITERAL: extra = " '" + tok.value + "'"; break;
+
 	 }
 
 	 System.out.println(symnames[tok.sym] + " " + tok.left + extra);
