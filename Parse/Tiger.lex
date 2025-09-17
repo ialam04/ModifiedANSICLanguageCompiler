@@ -15,6 +15,28 @@ import ErrorMsg.ErrorMsg;
 
 private StringBuffer string = new StringBuffer();
 
+private void appendEscapeSequence(char c) {
+  
+  switch(c) {
+    case '\'': string.append('\''); break;
+    case '\"': string.append('\"'); break;
+    case '?': string.append('?'); break;
+    case '\\': string.append('\\'); break;
+    case 'b': string.append('\b'); break;
+    case 'f': string.append('\f'); break;
+    case 'n': string.append('\n'); break;
+    case 'r': string.append('\r'); break;
+    case 't': string.append('\t'); break;
+    case 'v': string.append('\013'); break;
+    default:
+      err("Invalid escape sequence: \\" + c);
+      string.append(c);
+      break;
+  }
+
+
+}
+
 private void newline() {
   errorMsg.newline(yychar);
 }
@@ -61,7 +83,13 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 
 <STRING> [^\"\\\n]+ {string.append(yytext());}
 
-<STRING> \\. {string.append(yytext());}
+<STRING> \\. {appendEscapeSequence(yytext().charAt(1));}
+
+<STRING> <<EOF>> {
+    err("Unterminated string literal at end of file");
+    yybegin(YYINITIAL);
+    return tok(sym.EOF, null);
+}
 
 <STRING> \" {
     yybegin(YYINITIAL);
@@ -70,8 +98,13 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 
 <CHAR> [^\'\\\n]+ {string.append(yytext());}
 
-<CHAR> \\. {string.append(yytext());}
+<CHAR> \\. {appendEscapeSequence(yytext().charAt(1));}
 
+<CHAR> <<EOF>> {
+    err("Unterminated character literal at end of file");
+    yybegin(YYINITIAL);
+    return tok(sym.EOF, null);
+}
 <CHAR> \' {
     if (string.length() == 0) {
       err("empty character literal");
