@@ -85,8 +85,15 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 <YYINITIAL> "while" {return tok(sym.WHILE, null);}
 
 <YYINITIAL> [a-zA-Z_][a-zA-Z0-9_]*  { return tok(sym.ID, yytext()); }
-<YYINITIAL> [0-9]+     { return tok(sym.INT, Integer.valueOf(yytext())); }
 
+<YYINITIAL> 0[xX][0-9a-fA-F]+  { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext().substring(2),16)); }
+<YYINITIAL> 0[0-7]*            { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext(),8)); }
+<YYINITIAL> [1-9][0-9]*        { return tok(sym.DECIMAL_LITERAL, Integer.parseInt(yytext())); }
+
+<YYINITIAL> ";" {return tok(sym.SEMICOLON, null);}
+<YYINITIAL> "{" {return tok(sym.LBRACE, null);}
+<YYINITIAL> "}" {return tok(sym.RBRACE, null);}
+<YYINITIAL> "..." {return tok(sym.ELIPSES, null);}
 <YYINITIAL> "[" {return tok(sym.LBRACK, null);}
 <YYINITIAL> "]" {return tok(sym.RBRACK, null);}
 <YYINITIAL> "(" {return tok(sym.LPAREN, null);}
