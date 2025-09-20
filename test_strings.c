@@ -10,7 +10,6 @@
 "backslash\\"
 "single'quote"
 "null\0char"
-"bell\a"
 "vertical\vtab"
 "backspace\b"
 "formfeed\f"
@@ -19,7 +18,23 @@
 
 "This is a \"quoted\" string with\ttabs and\nnewlines"
 "Multiple\nlines\nof\ntext"
-"Special chars: \\ \" \' \n \t \r \b \f \a \v \0"
+"Special chars: \\ \" \' \n \t \r \b \f \v \0"
+
+
+"Octal escape sequences: \101 \102 \103"
+"Octal null: \000"
+"Octal newline: \012"
+"Octal tab: \011"
+"Octal backspace: \010"
+"Mixed octal: Hello\040World\041"
+
+
+"Hex escape sequences: \x41 \x42 \x43"
+"Hex null: \x00"
+"Hex newline: \x0A"
+"Hex tab: \x09"
+"Hex backspace: \x08"
+"Mixed hex: Hello\x20World\x21"
 
 
 "a"
@@ -39,12 +54,29 @@
 '\r'
 '\b'
 '\f'
-'\a'
 '\v'
 '\0'
 '\\'
 '\''
 '\"'
+
+
+'\101'
+'\102' 
+'\103'
+'\000'
+'\012'
+'\011'
+'\040'
+
+
+'\x41'
+'\x42'
+'\x43'
+'\x00'
+'\x0A'
+'\x09'
+'\x20'
 
 
 ' '  

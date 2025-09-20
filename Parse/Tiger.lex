@@ -83,7 +83,23 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 
 <STRING> [^\"\\\n]+ {string.append(yytext());}
 
-<STRING> \\. {appendEscapeSequence(yytext().charAt(1));}
+<STRING> \\[0-7][0-7]?[0-7]? {
+  String octalEsc = yytext().substring(1);
+  int value = Integer.parseInt(octalEsc, 8);
+  string.append((char)value);
+}
+
+<STRING> \\[ntrb\"\\fv'?]  { appendEscapeSequence(yytext().charAt(1)); }
+
+<STRING> \\x[0-9A-Fa-f]+ {
+  String hexStr = yytext().substring(2);
+  int value = Integer.parseInt(hexStr, 16);
+  string.append((char)value);
+}
+
+<STRING> \\. { 
+  err("Invalid escape sequence: " + yytext()); 
+  }
 
 <STRING> <<EOF>> {
     err("Unterminated string literal at end of file");
@@ -96,9 +112,25 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
     return tok(sym.STRING_LITERAL, string.toString());
   }
 
-<CHAR> [^\'\\\n]+ {string.append(yytext());}
+<CHAR> [^\'\\\n] {string.append(yytext());}
 
-<CHAR> \\. {appendEscapeSequence(yytext().charAt(1));}
+
+<CHAR> \\[0-7][0-7]?[0-7]? {
+  String octalEsc = yytext().substring(1);
+  int value = Integer.parseInt(octalEsc, 8);
+  string.append((char)value);
+}
+
+<CHAR> \\[ntrb\"\\fv'?]  { appendEscapeSequence(yytext().charAt(1)); }
+
+<CHAR> \\x[0-9A-Fa-f]+ {
+  String hexStr = yytext().substring(2);
+  int value = Integer.parseInt(hexStr, 16);
+  string.append((char)value);
+}
+
+
+<CHAR> \\. {err("Invalid escape sequence: " + yytext());}
 
 <CHAR> <<EOF>> {
     err("Unterminated character literal at end of file");
