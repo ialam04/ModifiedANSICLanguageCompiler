@@ -78,7 +78,6 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 <YYINITIAL,COMMENT> \n                  { newline(); }
 <YYINITIAL> [\t\r\f\040]+       { /* skip whitespace (040 is octal for space) */ }
 
-<YYINITIAL> "//"[^\r\n]*        { /* skip line comment */ }
 <YYINITIAL> "/*"                { yybegin(COMMENT); }
 
 <COMMENT> "*/"                  { yybegin(YYINITIAL); }
