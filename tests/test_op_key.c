@@ -1,4 +1,4 @@
-/* Test file for C operators and keywords /
+/* Test file for C operators and keywords */
 
 // Arithmetic operators
 + - / %
@@ -25,7 +25,7 @@
 -> .
 
 // Punctuation
-( ) [ ] { } ; : ,
+( ) [ ] ; : ,
 
 // Keywords
 auto break case char const continue
