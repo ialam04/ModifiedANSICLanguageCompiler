@@ -235,4 +235,4 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 <YYINITIAL> "," {return tok(sym.COMMA, null);}
 
 
-<YYINITIAL> . { err("Illegal character: " + yytext(); }
+<YYINITIAL> . { err("Illegal character: " + yytext()); }
