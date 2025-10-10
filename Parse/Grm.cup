@@ -27,15 +27,34 @@ parser code  {:
 
 scan with {: return lexer.nextToken(); :};
 
-terminal String ID, STRING;
-terminal Integer INT;
-terminal COMMA, COLON, SEMICOLON, LPAREN, RPAREN, LBRACK, RBRACK, 
-	LBRACE, RBRACE, DOT, PLUS, MINUS, TIMES, DIVIDE, EQ, NEQ, LT, LE, 
-	GT, GE, AND, OR, ASSIGN, ARRAY, IF, THEN, ELSE, WHILE, FOR, TO,
-	DO, LET, IN, END, OF, BREAK, NIL, FUNCTION, VAR, TYPE;
+terminal String  ID;
+terminal String  STRING_LITERAL;
+terminal String  CHAR_LITERAL;          /* you can switch to Character if you normalize in lexer */
+terminal Integer DECIMAL_LITERAL;
+
+/* punctuation / keywords / operators (no value) */
+terminal EOF;
+terminal INT, SEMICOLON, LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE, COMMA, COLON;
+terminal AUTO, BREAK, CASE, CONTINUE, DEFAULT, DO, ELSE, ENUM, EXTERN, FOR, GOTO, IF, REGISTER, RETURN,
+         SHORT, SIGNED, DOUBLE, CONST, STRUCT, SIZEOF, LONG, FLOAT, UNION, VOID, VOLATILE,
+         UNSIGNED, STATIC, TYPEDEF, WHILE, CHAR;   /* include anything you actually use */
+
+terminal PLUS, MINUS, TIMES, DIVIDE, MODULUS;
+terminal ASSIGN;
+terminal EQ, NEQ, LT, LE, GT, GE;
+terminal AND, OR;                      /* &&, || */
+terminal BITWISEAND, BWISEOR, BWISEXOR, TILDE;
+terminal LSHIFT, RSHIFT;
+terminal ADDASSIGN, SUBASSIGN, MULASSIGN, DIVASSIGN, MODASSIGN,
+         BWISEANDASSIGN, BWISEORASSIGN, BWISEXORASSIGN, LSHIFTASSIGN, RSHIFTASSIGN;
+terminal INCREMENT, DECREMENT;
+terminal PERIOD, ARROW;
+terminal ELIPSES;                      /* note: your sym spells it ELIPSES */
+terminal FUN, VAR;                     
 
 non terminal Absyn.Exp          Exp;
 non terminal Absyn.Var          Var;
+
 
 start with Exp;
 
@@ -48,3 +67,199 @@ Exp ::= error:e
 Var ::=   ID:n
 	  {: RESULT = new Absyn.SimpleVar(nleft, sym(n)); :}
 	;
+
+primary_expression ::=
+      ID:id       
+      {: RESULT = $1; :}
+    | INT:int       
+      {: RESULT = $1; :}
+    | STRING_LITERAL:str    
+      {: RESULT = $1; :}
+    | CHAR_LITERAL
+      {: RESULT = $1; :}
+    | LPAREN Exp:e RPAREN 
+      {: RESULT = $e; :}
+    ;
+
+argument_expression ::=
+\\SYNTAX NOT IN MANUAL
+
+argument_expression_list ::=
+      argument_expression
+      {: RESULT = $1; :}
+    | argument_expression COMMA assignment_expression
+      {: RESULT = $1; :}
+
+postfix_expression ::= 
+      primary_expression 
+      {: RESULT = $1; :}
+    | postfix_expression LBRACK Exp:e RBRACK
+      {: RESULT = $1; :}
+    | postfix_expression LPAREN argument_expression_list RPAREN
+      {: RESULT = $1; :}
+    | postfix_expression DOT ID
+      {: RESULT = $1; :}
+    | postfix_expression ARROW ID
+      {: RESULT = $1; :}
+    | postfix_expression INCREMENT
+      {: RESULT = $1; :}
+    | postfix_expression DECREMENT
+      {: RESULT = $1; :}
+    |
+unary_operator ::=
+      BITWISEAND
+      {: RESULT = $1; :}
+    | TIMES
+      {: RESULT = $1; :}
+    | PLUS
+      {: RESULT = $1; :}
+    | MINUS
+      {: RESULT = $1; :}
+    | TILDE
+      {: RESULT = $1; :}
+    
+unary_expression ::=
+      postfix_expression
+      {: RESULT = $1; :}
+    | INCREMENT unary_expression
+      {: RESULT = $1; :}
+    | DECREMENT unary_expression
+      {: RESULT = $1; :}
+    | unary_operator cast_expression
+      {: RESULT = $1; :}
+    | SIZEOF unary_expression
+      {: RESULT = $1; :}
+    | SIZEOF LPAREN type_name RPAREN
+      {: RESULT = $1; :}
+    
+cast_expression ::=
+      unary_expression
+      {: RESULT = $1; :}
+    | LPAREN type_name RPAREN cast_expression
+      {: RESULT = $1; :}
+
+type_name ::=
+\\SYNTAX NOT IN MANUAL
+
+multiplicative_expression ::= 
+      cast_expression
+      {: RESULT = $1; :}
+    | multiplicative_expression TIMES cast_expression
+      {: RESULT = $1; :}
+    | multiplicative_expression DIVIDE cast_expression
+      {: RESULT = $1; :}
+    | multiplicative_expression MODULUS cast_expression
+      {: RESULT = $1; :}
+
+additive_expression ::=
+      multiplicative_expression
+      {: RESULT = $1; :}
+    | additive_expression PLUS multiplicative_expression
+      {: RESULT = $1; :}
+    | additive_expression MINUS multiplicative_expression
+      {: RESULT = $1; :}
+
+shift_expression ::=
+      additive_expression
+      {: RESULT = $1; :}
+    | shift_expression LSHIFT additive_expression
+      {: RESULT = $1; :}
+    | shift_expression RSHIFT additive_expression
+      {: RESULT = $1; :}
+
+relational_expression ::=
+      shift_expression
+      {: RESULT = $1; :}
+    | relational_expression LT shift_expression
+      {: RESULT = $1; :}
+    | relational_expression GT shift_expression
+      {: RESULT = $1; :}
+    | relational_expression LE shift_expression
+      {: RESULT = $1; :}
+    | relational_expression GE shift_expression
+      {: RESULT = $1; :}
+
+equality_expression ::=
+      relational_expression
+      {: RESULT = $1; :}
+    | equality_expression EQ relational_expression
+      {: RESULT = $1; :}
+    | equality_expression NEQ relational_expression
+      {: RESULT = $1; :}
+
+AND_expression ::=
+      equality_expression
+      {: RESULT = $1; :}
+    | AND_expression BITWISEAND equality_expression
+      {: RESULT = $1; :}
+
+exclusive_OR_expression ::=
+      AND_expression
+      {: RESULT = $1; :}
+    | exclusive_OR_expression BWISEXOR AND_expression
+      {: RESULT = $1; :}
+
+inclusive_OR_expression ::=
+      exclusive_OR_expression
+      {: RESULT = $1; :}
+    | inclusive_OR_expression BWISEOR exclusive_OR_expression
+      {: RESULT = $1; :}
+    
+
+logical_AND_expression ::=
+      inclusive_OR_expression
+      {: RESULT = $1; :}
+    | logical_AND_expression AND inclusive_OR_expression
+      {: RESULT = $1; :}
+
+logical_OR_expression ::=
+      logical_AND_expression
+      {: RESULT = $1; :}
+    | logical_OR_expression OR logical_AND_expression
+      {: RESULT = $1; :}
+
+conditional_expression ::=
+      logical_OR_expression
+      {: RESULT = $1; :}
+    | logical_OR_expression ? expression COLON conditional_expression -> told us not to do question mark ask brandon about this
+      {: RESULT = $1; :}
+
+assignment_expression ::=
+      conditional_expression
+      {: RESULT = $1; :}
+    | unary_expression assignment_operator assignment_expression
+      {: RESULT = $1; :}
+
+assignment_operator ::=
+      ASSIGN
+      {: RESULT = $1; :}
+    | MULASSIGN
+      {: RESULT = $1; :}
+    | DIVASSIGN
+      {: RESULT = $1; :}
+    | MODASSIGN
+      {: RESULT = $1; :}
+    | ADDASSIGN
+      {: RESULT = $1; :}
+    | SUBASSIGN
+      {: RESULT = $1; :}
+    | LSHIFTASSIGN
+      {: RESULT = $1; :}
+    | RSHIFTASSIGN
+      {: RESULT = $1; :}
+    | BWISEANDASSIGN
+      {: RESULT = $1; :}
+    | BWISEXORASSIGN
+      {: RESULT = $1; :}
+    | BWISEORASSIGN
+      {: RESULT = $1; :}
+
+expression ::=
+      assignment_expression
+      {: RESULT = $1; :}
+    | expression COMMA assignment_expression
+      {: RESULT = $1; :}
+
+constant_expression ::=
+      conditional_expression
+      {: RESULT = $1; :}
