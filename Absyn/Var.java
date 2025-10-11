@@ -1,4 +1,12 @@
 package Absyn;
-import Symbol.Symbol;
-abstract public class Var extends Absyn {
+
+// Abstract base class for all variable references
+public abstract class Var extends Absyn {
+    public Var() {
+        super();
+    }
+    
+    public Var(int pos) {
+        super(pos);
+    }
 }

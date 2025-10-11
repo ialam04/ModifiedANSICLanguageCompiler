@@ -1,7 +1,17 @@
 package Absyn;
-import Symbol.Symbol;
+
+// Function call expressions (e.g., func(), printf("hello"), max(a, b))
 public class CallExp extends Exp {
-   public Symbol func;
-   public ExpList args;
-   public CallExp(int p, Symbol f, ExpList a) {pos=p; func=f; args=a;}
+    public Exp func;        // function expression
+    public ExpList args;    // argument list (can be null for no args)
+    
+    public CallExp(int pos, Exp func, ExpList args) {
+        super(pos);
+        this.func = func;
+        this.args = args;
+    }
+    
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
 }
