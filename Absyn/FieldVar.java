@@ -1,7 +1,13 @@
 package Absyn;
-import Symbol.Symbol;
+
+// Struct/union field access variable (e.g., s.field, ptr->member)
 public class FieldVar extends Var {
-   public Var var;
-   public Symbol field;
-   public FieldVar(int p, Var v, Symbol f) {pos=p; var=v; field=f;}
+    public Exp record;              // the struct/union expression
+    public Symbol.Symbol field;     // the field name
+    
+    public FieldVar(int pos, Exp record, Symbol.Symbol field) {
+        super(pos);
+        this.record = record;
+        this.field = field;
+    }
 }

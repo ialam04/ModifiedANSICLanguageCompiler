@@ -1,4 +1,5 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.Exp;
 import Symbol.Symbol;
 public class IfExp extends Exp {
    public Exp test;

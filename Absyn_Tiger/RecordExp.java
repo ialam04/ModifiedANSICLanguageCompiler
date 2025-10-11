@@ -1,4 +1,6 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.Exp;
+import Absyn.FieldExpList;
 import Symbol.Symbol;
 public class RecordExp extends Exp {
    public Symbol typ;

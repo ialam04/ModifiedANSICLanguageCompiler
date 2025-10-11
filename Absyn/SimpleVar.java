@@ -1,6 +1,11 @@
 package Absyn;
-import Symbol.Symbol;
+
+// Simple variable reference (e.g., x, myVariable)
 public class SimpleVar extends Var {
-   public Symbol name;
-   public SimpleVar (int p, Symbol n) {pos=p; name=n;}
+    public Symbol.Symbol name;
+    
+    public SimpleVar(int pos, Symbol.Symbol name) {
+        super(pos);
+        this.name = name;
+    }
 }

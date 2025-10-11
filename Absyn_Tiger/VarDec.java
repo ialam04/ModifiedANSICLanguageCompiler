@@ -1,4 +1,7 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.Dec;
+import Absyn.Exp;
+import Absyn.NameTy;
 import Symbol.Symbol;
 public class VarDec extends Dec {
    public Symbol name;

@@ -1,4 +1,5 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.Ty;
 import Symbol.Symbol;
 public class NameTy extends Ty {
    public Symbol name;

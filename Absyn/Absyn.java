@@ -1,5 +1,13 @@
 package Absyn;
-import Symbol.Symbol;
-abstract public class Absyn {
-  public int pos;
+
+public abstract class Absyn {
+    public int pos;
+    
+    public Absyn() {
+        pos = 0;
+    }
+    
+    public Absyn(int pos) {
+        this.pos = pos;
+    }
 }

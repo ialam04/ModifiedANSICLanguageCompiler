@@ -1,4 +1,6 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.Exp;
+import Absyn.VarDec;
 import Symbol.Symbol;
 public class ForExp extends Exp {
    public VarDec var;

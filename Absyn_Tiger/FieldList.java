@@ -1,4 +1,5 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.FieldList;
 import Symbol.Symbol;
 public class FieldList extends Absyn {
    public Symbol name;

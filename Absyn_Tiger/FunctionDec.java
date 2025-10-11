@@ -1,4 +1,9 @@
-package Absyn;
+package Absyn_Tiger;
+import Absyn.Dec;
+import Absyn.Exp;
+import Absyn.FieldList;
+import Absyn.FunctionDec;
+import Absyn.NameTy;
 import Symbol.Symbol;
 public class FunctionDec extends Dec {
   public Symbol name;

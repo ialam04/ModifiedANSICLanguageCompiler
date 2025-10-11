@@ -1,10 +1,10 @@
 package Absyn;
 
-// Integer literal expressions (e.g., 42, 0x1A, 077)
-public class IntExp extends Exp {
-    public int value;
+// Character literal expressions (e.g., 'a', '\n', '\0')
+public class CharExp extends Exp {
+    public char value;
     
-    public IntExp(int pos, int value) {
+    public CharExp(int pos, char value) {
         super(pos);
         this.value = value;
     }
