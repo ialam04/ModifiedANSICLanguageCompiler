@@ -3,6 +3,7 @@ package Absyn;
 // Simple visitor interface for traversing AST nodes
 // Used by Print.java to display the parse tree
 public interface Visitor {
+    // Expression visitors
     void visit(IntExp exp);
     void visit(CharExp exp);
     void visit(StringExp exp);
@@ -14,4 +15,8 @@ public interface Visitor {
     void visit(FieldExp exp);
     void visit(CastExp exp);
     void visit(SeqExp exp);
+    
+    // Statement and Declaration visitors (for future expansion)
+    void visit(Stm stm);
+    void visit(Dec dec);
 }

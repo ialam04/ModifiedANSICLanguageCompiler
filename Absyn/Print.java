@@ -198,4 +198,14 @@ public class Print implements Visitor {
         }
         out.print(")");
     }
+    
+    // Placeholder visitor methods for statements and declarations
+    // Your groupmates can implement these when adding statement/declaration parsing
+    public void visit(Stm stm) {
+        out.print("(Statement)");
+    }
+    
+    public void visit(Dec dec) {
+        out.print("(Declaration)");
+    }
 }
