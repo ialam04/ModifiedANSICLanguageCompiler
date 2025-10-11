@@ -324,73 +324,74 @@ expression ::=
 constant_expression ::=
       conditional_expression:e
       {: RESULT = e; :}
+    ;
 
 /* Statement grammar */
 statement ::=
       labeled_statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | compound_statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | expression_statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | selection_statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | iteration_statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | jump_statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 /* Labeled statements */
 labeled_statement ::=
       ID COLON statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | CASE constant_expression COLON statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | DEFAULT COLON statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 /* Compound statement or block */
 compound_statement ::=
       LBRACE RBRACE
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | LBRACE statement_list RBRACE
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | LBRACE declaration_list RBRACE
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | LBRACE declaration_list statement_list RBRACE
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 declaration_list ::=
       declaration
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | declaration_list declaration
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 statement_list ::=
       statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | statement_list statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 /* Expression and null statements */
 expression_statement ::=
       SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | expression SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 /* Selection statements */
 selection_statement ::=
       IF LPAREN expression RPAREN statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | IF LPAREN expression RPAREN statement ELSE statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 /* switch statement not implemented per requirements on moodle project guidnlines */
@@ -398,30 +399,30 @@ selection_statement ::=
 /* Iteration statements */
 iteration_statement ::=
       WHILE LPAREN expression RPAREN statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | DO statement WHILE LPAREN expression RPAREN SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | FOR LPAREN expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RPAREN statement
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 expression_opt ::=
       /* empty */
       {: RESULT = null; :}
     | expression
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
 
 /* Jump statements */
 jump_statement ::=
       GOTO ID SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | CONTINUE SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | BREAK SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | RETURN SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     | RETURN expression SEMICOLON
-      {: RESULT = $1; :}
+      {: RESULT = null; :}
     ;
