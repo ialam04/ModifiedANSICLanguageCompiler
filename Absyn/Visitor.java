@@ -19,4 +19,19 @@ public interface Visitor {
     // Statement and Declaration visitors (for future expansion)
     void visit(Stm stm);
     void visit(Dec dec);
+    
+    // Specific statement visitors
+    void visit(IfStm stm);
+    void visit(WhileStm stm);
+    void visit(DoWhileStm stm);
+    void visit(ForStm stm);
+    void visit(CompoundStm stm);
+    void visit(ExpressionStm stm);
+    void visit(GotoStm stm);
+    void visit(ContinueStm stm);
+    void visit(BreakStm stm);
+    void visit(ReturnStm stm);
+    void visit(LabeledStm stm);
+    void visit(CaseStm stm);
+    void visit(DefaultStm stm);
 }

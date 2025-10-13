@@ -19,6 +19,16 @@ public class Print implements Visitor {
         }
     }
     
+    // Main entry point for printing statements
+    public void prStm(Stm stm, int d) {
+        indent = d;
+        if (stm != null) {
+            stm.accept(this);
+        } else {
+            out.print("null");
+        }
+    }
+    
     // Helper method for indentation
     private void indent() {
         for (int i = 0; i < indent; i++) {
@@ -207,5 +217,211 @@ public class Print implements Visitor {
     
     public void visit(Dec dec) {
         out.print("(Declaration)");
+    }
+    
+    // Specific statement visitor implementations
+    public void visit(IfStm stm) {
+        out.print("(if ");
+        prExp(stm.test, 0);
+        out.println();
+        indent += 2;
+        indent();
+        out.print("then ");
+        if (stm.thenpart != null) {
+            stm.thenpart.accept(this);
+        } else {
+            out.print("null");
+        }
+        if (stm.elsepart != null) {
+            out.println();
+            indent();
+            out.print("else ");
+            stm.elsepart.accept(this);
+        }
+        indent -= 2;
+        out.print(")");
+    }
+    
+    public void visit(WhileStm stm) {
+        out.print("(while ");
+        prExp(stm.test, 0);
+        out.println();
+        indent += 2;
+        indent();
+        if (stm.body != null) {
+            stm.body.accept(this);
+        } else {
+            out.print("null");
+        }
+        indent -= 2;
+        out.print(")");
+    }
+    
+    public void visit(DoWhileStm stm) {
+        out.print("(do ");
+        out.println();
+        indent += 2;
+        indent();
+        if (stm.body != null) {
+            stm.body.accept(this);
+        } else {
+            out.print("null");
+        }
+        out.println();
+        indent();
+        out.print("while ");
+        prExp(stm.test, 0);
+        indent -= 2;
+        out.print(")");
+    }
+    
+    public void visit(ForStm stm) {
+        out.print("(for ");
+        if (stm.init != null) {
+            prExp(stm.init, 0);
+        } else {
+            out.print("null");
+        }
+        out.print("; ");
+        if (stm.test != null) {
+            prExp(stm.test, 0);
+        } else {
+            out.print("null");
+        }
+        out.print("; ");
+        if (stm.increment != null) {
+            prExp(stm.increment, 0);
+        } else {
+            out.print("null");
+        }
+        out.println();
+        indent += 2;
+        indent();
+        if (stm.body != null) {
+            stm.body.accept(this);
+        } else {
+            out.print("null");
+        }
+        indent -= 2;
+        out.print(")");
+    }
+    
+    public void visit(CompoundStm stm) {
+        out.print("(compound");
+        out.println();
+        indent += 2;
+        
+        if (stm.declarations != null) {
+            indent();
+            out.print("declarations: ");
+            printDecList(stm.declarations);
+            out.println();
+        }
+        
+        if (stm.statements != null) {
+            indent();
+            out.print("statements: ");
+            printStmList(stm.statements);
+        }
+        
+        indent -= 2;
+        out.print(")");
+    }
+    
+    public void visit(ExpressionStm stm) {
+        out.print("(expr-stmt ");
+        if (stm.exp != null) {
+            prExp(stm.exp, 0);
+        } else {
+            out.print("empty");
+        }
+        out.print(")");
+    }
+    
+    public void visit(GotoStm stm) {
+        out.print("(goto ");
+        out.print(stm.label.toString());
+        out.print(")");
+    }
+    
+    public void visit(ContinueStm stm) {
+        out.print("(continue)");
+    }
+    
+    public void visit(BreakStm stm) {
+        out.print("(break)");
+    }
+    
+    public void visit(ReturnStm stm) {
+        out.print("(return ");
+        if (stm.exp != null) {
+            prExp(stm.exp, 0);
+        } else {
+            out.print("void");
+        }
+        out.print(")");
+    }
+    
+    public void visit(LabeledStm stm) {
+        out.print("(label ");
+        out.print(stm.label.toString());
+        out.print(": ");
+        if (stm.statement != null) {
+            stm.statement.accept(this);
+        } else {
+            out.print("null");
+        }
+        out.print(")");
+    }
+    
+    public void visit(CaseStm stm) {
+        out.print("(case ");
+        prExp(stm.constant, 0);
+        out.print(": ");
+        if (stm.statement != null) {
+            stm.statement.accept(this);
+        } else {
+            out.print("null");
+        }
+        out.print(")");
+    }
+    
+    public void visit(DefaultStm stm) {
+        out.print("(default: ");
+        if (stm.statement != null) {
+            stm.statement.accept(this);
+        } else {
+            out.print("null");
+        }
+        out.print(")");
+    }
+    
+    // Helper methods for printing lists
+    private void printStmList(StmList stmList) {
+        out.print("(");
+        while (stmList != null) {
+            if (stmList.head != null) {
+                stmList.head.accept(this);
+            }
+            stmList = stmList.tail;
+            if (stmList != null) {
+                out.print(" ");
+            }
+        }
+        out.print(")");
+    }
+    
+    private void printDecList(DecList decList) {
+        out.print("(");
+        while (decList != null) {
+            if (decList.head != null) {
+                decList.head.accept(this);
+            }
+            decList = decList.tail;
+            if (decList != null) {
+                out.print(" ");
+            }
+        }
+        out.print(")");
     }
 }

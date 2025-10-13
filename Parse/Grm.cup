@@ -56,14 +56,14 @@ non terminal Absyn.Var          Var;
 
 
 /* Statement-related non-terminals */
-non terminal Absyn.Exp statement;          
-non terminal Absyn.Exp labeled_statement;
-non terminal Absyn.Exp compound_statement;
-non terminal Absyn.Exp expression_statement;
-non terminal Absyn.Exp selection_statement;
-non terminal Absyn.Exp iteration_statement;
-non terminal Absyn.Exp jump_statement;
-non terminal Absyn.ExpList statement_list;  
+non terminal Absyn.Stm statement;          
+non terminal Absyn.Stm labeled_statement;
+non terminal Absyn.Stm compound_statement;
+non terminal Absyn.Stm expression_statement;
+non terminal Absyn.Stm selection_statement;
+non terminal Absyn.Stm iteration_statement;
+non terminal Absyn.Stm jump_statement;
+non terminal Absyn.StmList statement_list;  
 non terminal Absyn.DecList declaration_list; 
 non terminal Absyn.Dec declaration;          
 non terminal Absyn.Exp expression_opt;     
@@ -78,15 +78,7 @@ non terminal Integer            unary_operator;
 non terminal Object             type_name;
 
 
-start with Exp;
-
-Exp ::= error:e
-	  {: RESULT = new Absyn.SeqExp(eleft, null); :}
-	| Var:v
-	  {: RESULT = new Absyn.VarExp(vleft, v); :}
-	| expression:e
-	  {: RESULT = e; :}
-	;
+start with statement;
 
 Var ::=   ID:n
 	  {: RESULT = new Absyn.SimpleVar(nleft, sym(n)); :}
@@ -328,101 +320,107 @@ constant_expression ::=
 
 /* Statement grammar */
 statement ::=
-      labeled_statement
-      {: RESULT = null; :}
-    | compound_statement
-      {: RESULT = null; :}
-    | expression_statement
-      {: RESULT = null; :}
-    | selection_statement
-      {: RESULT = null; :}
-    | iteration_statement
-      {: RESULT = null; :}
-    | jump_statement
-      {: RESULT = null; :}
+      labeled_statement:s
+      {: RESULT = s; :}
+    | compound_statement:s
+      {: RESULT = s; :}
+    | expression_statement:s
+      {: RESULT = s; :}
+    | selection_statement:s
+      {: RESULT = s; :}
+    | iteration_statement:s
+      {: RESULT = s; :}
+    | jump_statement:s
+      {: RESULT = s; :}
     ;
 
 /* Labeled statements */
 labeled_statement ::=
-      ID COLON statement
-      {: RESULT = null; :}
-    | CASE constant_expression COLON statement
-      {: RESULT = null; :}
-    | DEFAULT COLON statement
-      {: RESULT = null; :}
+      ID:label COLON statement:s
+      {: RESULT = new Absyn.LabeledStm(labelleft, sym(label), s); :}
+    | CASE constant_expression:e COLON statement:s
+      {: RESULT = new Absyn.CaseStm(eleft, e, s); :}
+    | DEFAULT COLON statement:s
+      {: RESULT = new Absyn.DefaultStm(sleft, s); :}
     ;
 
 /* Compound statement or block */
 compound_statement ::=
-      LBRACE RBRACE
-      {: RESULT = null; :}
-    | LBRACE statement_list RBRACE
-      {: RESULT = null; :}
-    | LBRACE declaration_list RBRACE
-      {: RESULT = null; :}
-    | LBRACE declaration_list statement_list RBRACE
-      {: RESULT = null; :}
+      LBRACE:lb RBRACE
+      {: RESULT = new Absyn.CompoundStm(lbleft, null, null); :}
+    | LBRACE:lb statement_list:stms RBRACE
+      {: RESULT = new Absyn.CompoundStm(lbleft, null, stms); :}
+    | LBRACE:lb declaration_list:decs RBRACE
+      {: RESULT = new Absyn.CompoundStm(lbleft, decs, null); :}
+    | LBRACE:lb declaration_list:decs statement_list:stms RBRACE
+      {: RESULT = new Absyn.CompoundStm(lbleft, decs, stms); :}
     ;
 
 declaration_list ::=
-      declaration
-      {: RESULT = null; :}
-    | declaration_list declaration
+      declaration:d
+      {: RESULT = new Absyn.DecList(d, null); :}
+    | declaration_list:dl declaration:d
+      {: RESULT = new Absyn.DecList(d, dl); :}
+    ;
+
+/* Placeholder for declaration rules  */
+declaration ::=
+      INT ID:name SEMICOLON
       {: RESULT = null; :}
     ;
 
 statement_list ::=
-      statement
-      {: RESULT = null; :}
-    | statement_list statement
-      {: RESULT = null; :}
+      statement:s
+      {: RESULT = new Absyn.StmList(s, null); :}
+    | statement_list:sl statement:s
+      {: RESULT = new Absyn.StmList(s, sl); :}
     ;
 
 /* Expression and null statements */
 expression_statement ::=
-      SEMICOLON
-      {: RESULT = null; :}
-    | expression SEMICOLON
-      {: RESULT = null; :}
+      SEMICOLON:s
+      {: RESULT = new Absyn.ExpressionStm(sleft, null); :}
+    | expression:e SEMICOLON
+      {: RESULT = new Absyn.ExpressionStm(eleft, e); :}
     ;
 
 /* Selection statements */
 selection_statement ::=
-      IF LPAREN expression RPAREN statement
-      {: RESULT = null; :}
-    | IF LPAREN expression RPAREN statement ELSE statement
-      {: RESULT = null; :}
+      IF:i LPAREN expression:test RPAREN statement:then
+      {: RESULT = new Absyn.IfStm(ileft, test, then, null); :}
+    | IF:i LPAREN expression:test RPAREN statement:then ELSE statement:elsepart
+      {: RESULT = new Absyn.IfStm(ileft, test, then, elsepart); :}
     ;
 
 /* switch statement not implemented per requirements on moodle project guidnlines */
 
 /* Iteration statements */
 iteration_statement ::=
-      WHILE LPAREN expression RPAREN statement
-      {: RESULT = null; :}
-    | DO statement WHILE LPAREN expression RPAREN SEMICOLON
-      {: RESULT = null; :}
-    | FOR LPAREN expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RPAREN statement
-      {: RESULT = null; :}
+      WHILE:w LPAREN expression:test RPAREN statement:body
+      {: RESULT = new Absyn.WhileStm(wleft, test, body); :}
+    | DO:d statement:body WHILE LPAREN expression:test RPAREN SEMICOLON
+      {: RESULT = new Absyn.DoWhileStm(dleft, body, test); :}
+    | FOR:f LPAREN expression_opt:i SEMICOLON expression_opt:t SEMICOLON expression_opt:inc RPAREN statement:body
+      {: RESULT = new Absyn.ForStm(fleft, i, t, inc, body); :}
     ;
 
 expression_opt ::=
       /* empty */
       {: RESULT = null; :}
-    | expression
-      {: RESULT = null; :}
+    | expression:e
+      {: RESULT = e; :}
     ;
 
 /* Jump statements */
 jump_statement ::=
-      GOTO ID SEMICOLON
-      {: RESULT = null; :}
-    | CONTINUE SEMICOLON
-      {: RESULT = null; :}
-    | BREAK SEMICOLON
-      {: RESULT = null; :}
-    | RETURN SEMICOLON
-      {: RESULT = null; :}
-    | RETURN expression SEMICOLON
-      {: RESULT = null; :}
+      GOTO:g ID:label SEMICOLON
+      {: RESULT = new Absyn.GotoStm(gleft, sym(label)); :}
+    | CONTINUE:c SEMICOLON
+      {: RESULT = new Absyn.ContinueStm(cleft); :}
+    | BREAK:b SEMICOLON
+      {: RESULT = new Absyn.BreakStm(bleft); :}
+    | RETURN:r SEMICOLON
+      {: RESULT = new Absyn.ReturnStm(rleft, null); :}
+    | RETURN:r expression:e SEMICOLON
+      {: RESULT = new Absyn.ReturnStm(rleft, e); :}
     ;
