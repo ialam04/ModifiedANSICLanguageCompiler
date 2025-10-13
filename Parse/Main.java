@@ -11,7 +11,7 @@ public class Main {
       Parse parse = new Parse(filename);
       PrintWriter writer = new PrintWriter(System.out);
       Absyn.Print printer = new Absyn.Print(writer);
-      printer.prExp(parse.absyn, 0);
+      printer.prStm(parse.absyn, 0);
       writer.println();
       writer.flush();
     }
