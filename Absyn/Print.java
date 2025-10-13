@@ -424,4 +424,134 @@ public class Print implements Visitor {
         }
         out.print(")");
     }
+    
+    // Specific declaration visitor implementations
+    public void visit(VarDec dec) {
+        out.print("(var-decl ");
+        if (dec.type != null) {
+            out.print(dec.type.getTypeName());
+        }
+        out.print(" ");
+        if (dec.declarator != null && dec.declarator.name != null) {
+            out.print(dec.declarator.name.toString());
+        }
+        if (dec.initializer != null) {
+            out.print(" = ");
+            prExp(dec.initializer, 0);
+        }
+        out.print(")");
+    }
+    
+    public void visit(FunctionDec dec) {
+        out.print("(func-decl ");
+        if (dec.returnType != null) {
+            out.print(dec.returnType.getTypeName());
+        }
+        out.print(" ");
+        if (dec.name != null) {
+            out.print(dec.name.toString());
+        }
+        out.print("(");
+        printParameterList(dec.params);
+        out.print(")");
+        if (dec.body != null) {
+            out.println();
+            indent += 2;
+            indent();
+            dec.body.accept(this);
+            indent -= 2;
+        }
+        out.print(")");
+    }
+    
+    public void visit(TypedefDec dec) {
+        out.print("(typedef ");
+        if (dec.type != null) {
+            out.print(dec.type.getTypeName());
+        }
+        out.print(" ");
+        if (dec.declarator != null && dec.declarator.name != null) {
+            out.print(dec.declarator.name.toString());
+        }
+        out.print(")");
+    }
+    
+    public void visit(StructDec dec) {
+        out.print("(" + (dec.isUnion ? "union" : "struct"));
+        if (dec.name != null) {
+            out.print(" " + dec.name.toString());
+        }
+        out.println();
+        indent += 2;
+        printFieldDecList(dec.fields);
+        indent -= 2;
+        out.print(")");
+    }
+    
+    public void visit(EnumDec dec) {
+        out.print("(enum");
+        if (dec.name != null) {
+            out.print(" " + dec.name.toString());
+        }
+        out.println();
+        indent += 2;
+        printEnumeratorList(dec.enumerators);
+        indent -= 2;
+        out.print(")");
+    }
+    
+    // Helper methods for printing declaration-related lists
+    private void printParameterList(ParameterList params) {
+        while (params != null) {
+            if (params.type != null) {
+                out.print(params.type.getTypeName());
+            }
+            if (params.name != null) {
+                out.print(" " + params.name.toString());
+            }
+            params = params.tail;
+            if (params != null) {
+                out.print(", ");
+            }
+        }
+    }
+    
+    private void printFieldDecList(FieldDecList fields) {
+        while (fields != null) {
+            if (fields.head != null) {
+                indent();
+                out.print("(field ");
+                if (fields.head.type != null) {
+                    out.print(fields.head.type.getTypeName());
+                }
+                if (fields.head.name != null) {
+                    out.print(" " + fields.head.name.toString());
+                }
+                if (fields.head.bitfield != null) {
+                    out.print(" : ");
+                    prExp(fields.head.bitfield, 0);
+                }
+                out.println(")");
+            }
+            fields = fields.tail;
+        }
+    }
+    
+    private void printEnumeratorList(EnumeratorList enums) {
+        while (enums != null) {
+            if (enums.head != null) {
+                indent();
+                out.print("(enum-const ");
+                if (enums.head.name != null) {
+                    out.print(enums.head.name.toString());
+                }
+                if (enums.head.value != null) {
+                    out.print(" = ");
+                    prExp(enums.head.value, 0);
+                }
+                out.println(")");
+            }
+            enums = enums.tail;
+        }
+    }
 }

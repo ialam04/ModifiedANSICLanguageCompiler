@@ -77,8 +77,31 @@ non terminal Absyn.ExpList      argument_expression_list;
 non terminal Integer            unary_operator;
 non terminal Object             type_name;
 
+/* Declaration-related non-terminals */
+non terminal Absyn.TypeSpecifier type_specifier;
+non terminal Absyn.StorageSpecifier storage_class_specifier;
+non terminal Absyn.SpecifierList specifier_qualifier_list;
+non terminal Absyn.Declarator declarator, direct_declarator;
+non terminal Absyn.ParameterList parameter_type_list, parameter_list;
+non terminal Absyn.ParameterInfo parameter_declaration;
 
-start with statement;
+non terminal Absyn.Exp initializer;
+non terminal Absyn.FieldDecList struct_declaration_list;
+non terminal Absyn.FieldDec struct_declaration;
+non terminal Absyn.EnumeratorList enumerator_list;
+non terminal Absyn.Enumerator enumerator;
+non terminal Integer pointer_list;
+non terminal Absyn.Dec translation_unit;
+
+
+start with translation_unit;
+
+translation_unit ::=
+      declaration:d
+      {: RESULT = d; :}
+    | statement:s
+      {: RESULT = null; /* For now, ignore statements at top level */ :}
+    ;
 
 Var ::=   ID:n
 	  {: RESULT = new Absyn.SimpleVar(nleft, sym(n)); :}
@@ -363,10 +386,10 @@ declaration_list ::=
       {: RESULT = new Absyn.DecList(d, dl); :}
     ;
 
-/* Placeholder for declaration rules  */
+/* C Declaration Rules - Basic working version */
 declaration ::=
-      INT ID:name SEMICOLON
-      {: RESULT = null; :}
+      type_specifier:type ID:name SEMICOLON
+      {: RESULT = new Absyn.VarDec(typeleft, type, sym(name), null); :}
     ;
 
 statement_list ::=
@@ -423,4 +446,158 @@ jump_statement ::=
       {: RESULT = new Absyn.ReturnStm(rleft, null); :}
     | RETURN:r expression:e SEMICOLON
       {: RESULT = new Absyn.ReturnStm(rleft, e); :}
+    ;
+
+/* Declaration Specifiers - Removed for simplicity */
+
+storage_class_specifier ::=
+      TYPEDEF
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.TYPEDEF); :}
+    | EXTERN
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.EXTERN); :}
+    | STATIC
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.STATIC); :}
+    | AUTO
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.AUTO); :}
+    | REGISTER
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.REGISTER); :}
+    | CONST
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.CONST); :}
+    | VOLATILE
+      {: RESULT = new Absyn.StorageSpecifier(0, Absyn.StorageSpecifier.VOLATILE); :}
+    ;
+
+type_specifier ::=
+      VOID:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.VOID); :}
+    | CHAR:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.CHAR); :}
+    | SHORT:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.SHORT); :}
+    | INT:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.INT); :}
+    | LONG:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.LONG); :}
+    | FLOAT:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.FLOAT); :}
+    | DOUBLE:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.DOUBLE); :}
+    | SIGNED:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.SIGNED); :}
+    | UNSIGNED:t
+      {: RESULT = new Absyn.TypeSpecifier(tleft, Absyn.TypeSpecifier.UNSIGNED); :}
+    | STRUCT:s ID:name LBRACE struct_declaration_list:fields RBRACE
+      {: Absyn.StructDec sd = new Absyn.StructDec(sleft, false, sym(name), fields);
+         RESULT = new Absyn.TypeSpecifier(sleft, Absyn.TypeSpecifier.STRUCT, name, sd, true); :}
+    | STRUCT:s LBRACE struct_declaration_list:fields RBRACE
+      {: Absyn.StructDec sd = new Absyn.StructDec(sleft, false, null, fields);
+         RESULT = new Absyn.TypeSpecifier(sleft, Absyn.TypeSpecifier.STRUCT, null, sd, true); :}
+    | STRUCT:s ID:name
+      {: RESULT = new Absyn.TypeSpecifier(sleft, Absyn.TypeSpecifier.STRUCT, name); :}
+    | UNION:u ID:name LBRACE struct_declaration_list:fields RBRACE
+      {: Absyn.StructDec sd = new Absyn.StructDec(uleft, true, sym(name), fields);
+         RESULT = new Absyn.TypeSpecifier(uleft, Absyn.TypeSpecifier.UNION, name, sd, true); :}
+    | UNION:u LBRACE struct_declaration_list:fields RBRACE
+      {: Absyn.StructDec sd = new Absyn.StructDec(uleft, true, null, fields);
+         RESULT = new Absyn.TypeSpecifier(uleft, Absyn.TypeSpecifier.UNION, null, sd, true); :}
+    | UNION:u ID:name
+      {: RESULT = new Absyn.TypeSpecifier(uleft, Absyn.TypeSpecifier.UNION, name); :}
+    | ENUM:e ID:name LBRACE enumerator_list:enums RBRACE
+      {: Absyn.EnumDec ed = new Absyn.EnumDec(eleft, sym(name), enums);
+         RESULT = new Absyn.TypeSpecifier(eleft, Absyn.TypeSpecifier.ENUM, name, ed, false); :}
+    | ENUM:e LBRACE enumerator_list:enums RBRACE
+      {: Absyn.EnumDec ed = new Absyn.EnumDec(eleft, null, enums);
+         RESULT = new Absyn.TypeSpecifier(eleft, Absyn.TypeSpecifier.ENUM, null, ed, false); :}
+    | ENUM:e ID:name
+      {: RESULT = new Absyn.TypeSpecifier(eleft, Absyn.TypeSpecifier.ENUM, name); :}
+    | ID:name
+      {: RESULT = new Absyn.TypeSpecifier(nameleft, Absyn.TypeSpecifier.TYPEDEF_NAME, name); :}
+    ;
+
+/* Declarators */
+declarator ::=
+      direct_declarator:d
+      {: RESULT = d; :}
+    | pointer_list:ptrs direct_declarator:d
+      {: d.pointerCount = ptrs.intValue(); RESULT = d; :}
+    ;
+
+direct_declarator ::=
+      ID:name
+      {: RESULT = new Absyn.Declarator(nameleft, sym(name)); :}
+    | LPAREN declarator:d RPAREN
+      {: RESULT = d; :}
+    | direct_declarator:d LBRACK constant_expression:size RBRACK
+      {: d.arrays = new Absyn.ArraySpecList(size, d.arrays); RESULT = d; :}
+    | direct_declarator:d LBRACK RBRACK
+      {: d.arrays = new Absyn.ArraySpecList(null, d.arrays); RESULT = d; :}
+    | direct_declarator:d LPAREN parameter_type_list:params RPAREN
+      {: d.params = params; RESULT = d; :}
+    | direct_declarator:d LPAREN RPAREN
+      {: d.params = null; RESULT = d; :}
+    ;
+
+pointer_list ::=
+      TIMES
+      {: RESULT = new Integer(1); :}
+    | pointer_list:p TIMES
+      {: RESULT = new Integer(p.intValue() + 1); :}
+    ;
+
+/* Parameters */
+parameter_type_list ::=
+      parameter_list:list
+      {: RESULT = list; :}
+    | parameter_list:list COMMA ELIPSES
+      {: /* Handle variadic functions - for now just return the list */ RESULT = list; :}
+    ;
+
+parameter_list ::=
+      parameter_declaration:param
+      {: RESULT = new Absyn.ParameterList(param.type, param.name, null); :}
+    | parameter_list:list COMMA parameter_declaration:param
+      {: RESULT = new Absyn.ParameterList(param.type, param.name, list); :}
+    ;
+
+parameter_declaration ::=
+      type_specifier:type ID:name
+      {: RESULT = new Absyn.ParameterInfo(type, sym(name)); :}
+    | type_specifier:type
+      {: RESULT = new Absyn.ParameterInfo(type, null); :}
+    ;
+
+/* Struct declarations */
+struct_declaration_list ::=
+      struct_declaration:decl
+      {: RESULT = new Absyn.FieldDecList(decl, null); :}
+    | struct_declaration_list:list struct_declaration:decl
+      {: RESULT = new Absyn.FieldDecList(decl, list); :}
+    ;
+
+struct_declaration ::=
+      type_specifier:type ID:name SEMICOLON
+      {: RESULT = new Absyn.FieldDec(typeleft, type, sym(name)); :}
+    | type_specifier:type ID:name COLON constant_expression:bits SEMICOLON
+      {: RESULT = new Absyn.FieldDec(typeleft, type, sym(name), bits); :}
+    ;
+
+/* Enumerations */
+enumerator_list ::=
+      enumerator:e
+      {: RESULT = new Absyn.EnumeratorList(e, null); :}
+    | enumerator_list:list COMMA enumerator:e
+      {: RESULT = new Absyn.EnumeratorList(e, list); :}
+    ;
+
+enumerator ::=
+      ID:name
+      {: RESULT = new Absyn.Enumerator(nameleft, sym(name)); :}
+    | ID:name ASSIGN constant_expression:value
+      {: RESULT = new Absyn.Enumerator(nameleft, sym(name), value); :}
+    ;
+
+/* Initializers - Simplified */
+initializer ::=
+      assignment_expression:e
+      {: RESULT = e; :}
     ;

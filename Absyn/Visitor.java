@@ -20,6 +20,13 @@ public interface Visitor {
     void visit(Stm stm);
     void visit(Dec dec);
     
+    // Specific declaration visitors
+    void visit(VarDec dec);
+    void visit(FunctionDec dec);
+    void visit(TypedefDec dec);
+    void visit(StructDec dec);
+    void visit(EnumDec dec);
+    
     // Specific statement visitors
     void visit(IfStm stm);
     void visit(WhileStm stm);
