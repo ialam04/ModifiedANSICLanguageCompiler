@@ -424,4 +424,146 @@ public class Print implements Visitor {
         }
         out.print(")");
     }
+    
+    // Declaration visitor methods
+    public void visit(VarDec dec) {
+        out.print("(var-dec ");
+        printBitfields(dec.bitfields);
+        if (dec.type != null) {
+            dec.type.accept(this);
+        }
+        out.print(" " + dec.name);
+        if (dec.init != null) {
+            out.print(" = ");
+            prExp(dec.init, 0);
+        }
+        out.print(")");
+    }
+    
+    public void visit(FunctionDec dec) {
+        out.print("(function-dec ");
+        printBitfields(dec.bitfields);
+        if (dec.returnType != null) {
+            dec.returnType.accept(this);
+        }
+        out.print(" " + dec.name);
+        out.print("(");
+        printFieldList(dec.params);
+        if (dec.hasVarArgs) {
+            out.print(", ...");
+        }
+        out.print(")");
+        if (dec.body != null) {
+            out.println();
+            indent += 2;
+            indent();
+            dec.body.accept(this);
+            indent -= 2;
+        }
+        out.print(")");
+    }
+    
+    public void visit(TypedefDec dec) {
+        out.print("(typedef ");
+        if (dec.type != null) {
+            dec.type.accept(this);
+        }
+        out.print(" " + dec.name + ")");
+    }
+    
+    public void visit(EnumDec dec) {
+        out.print("(enum-dec ");
+        printBitfields(dec.bitfields);
+        out.print(dec.name + " ");
+        printEnumeratorList(dec.enumerators);
+        out.print(")");
+    }
+    
+    public void visit(StructDec dec) {
+        out.print("(struct-dec ");
+        printBitfields(dec.bitfields);
+        out.print(dec.name + " ");
+        printFieldList(dec.fields);
+        out.print(")");
+    }
+    
+    public void visit(UnionDec dec) {
+        out.print("(union-dec ");
+        printBitfields(dec.bitfields);
+        out.print(dec.name + " ");
+        printFieldList(dec.fields);
+        out.print(")");
+    }
+    
+    public void visit(NameTy ty) {
+        out.print("(");
+        // Print pointer modifiers
+        for (int i = 0; i < ty.pointerDepth; i++) {
+            out.print("*");
+        }
+        out.print(ty.name);
+        // Print array dimensions
+        if (ty.arrayDimensions != null) {
+            printArrayDimensions(ty.arrayDimensions);
+        }
+        out.print(")");
+    }
+    
+    // Helper methods
+    private void printBitfields(int bitfields) {
+        if (bitfields != 0) {
+            out.print("[");
+            if ((bitfields & VarDec.CONST) != 0) out.print("const ");
+            if ((bitfields & VarDec.VOLATILE) != 0) out.print("volatile ");
+            if ((bitfields & VarDec.EXTERN) != 0) out.print("extern ");
+            if ((bitfields & VarDec.STATIC) != 0) out.print("static ");
+            if ((bitfields & VarDec.AUTO) != 0) out.print("auto ");
+            if ((bitfields & VarDec.REGISTER) != 0) out.print("register ");
+            out.print("] ");
+        }
+    }
+    
+    private void printFieldList(FieldList fields) {
+        out.print("(");
+        while (fields != null) {
+            if (fields.type != null) {
+                fields.type.accept(this);
+            }
+            if (fields.name != null) {
+                out.print(" " + fields.name);
+            }
+            fields = fields.tail;
+            if (fields != null) {
+                out.print(", ");
+            }
+        }
+        out.print(")");
+    }
+    
+    private void printEnumeratorList(EnumeratorList enums) {
+        out.print("(");
+        while (enums != null) {
+            out.print(enums.head.name);
+            if (enums.head.value != null) {
+                out.print(" = ");
+                prExp(enums.head.value, 0);
+            }
+            enums = enums.tail;
+            if (enums != null) {
+                out.print(", ");
+            }
+        }
+        out.print(")");
+    }
+    
+    private void printArrayDimensions(ExpList dimensions) {
+        while (dimensions != null) {
+            out.print("[");
+            if (dimensions.head != null) {
+                prExp(dimensions.head, 0);
+            }
+            out.print("]");
+            dimensions = dimensions.tail;
+        }
+    }
 }

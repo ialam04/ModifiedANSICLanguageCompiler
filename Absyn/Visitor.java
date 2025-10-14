@@ -34,4 +34,15 @@ public interface Visitor {
     void visit(LabeledStm stm);
     void visit(CaseStm stm);
     void visit(DefaultStm stm);
+    
+    // Declaration visitors
+    void visit(VarDec dec);
+    void visit(FunctionDec dec);
+    void visit(TypedefDec dec);
+    void visit(EnumDec dec);
+    void visit(StructDec dec);
+    void visit(UnionDec dec);
+    
+    // Type visitors
+    void visit(NameTy ty);
 }

@@ -164,6 +164,7 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 <YYINITIAL> "extern" {return tok(sym.EXTERN, null);}
 <YYINITIAL> "float" {return tok(sym.FLOAT, null);}
 <YYINITIAL> "for" {return tok(sym.FOR, null);}
+<YYINITIAL> "fun" {return tok(sym.FUN, null);}
 <YYINITIAL> "goto" {return tok(sym.GOTO, null);}
 <YYINITIAL> "if" {return tok(sym.IF, null);}
 <YYINITIAL> "int" {return tok(sym.INT, null);}
@@ -178,6 +179,7 @@ Yylex(java.io.InputStream s, ErrorMsg e) {
 <YYINITIAL> "typedef" {return tok(sym.TYPEDEF, null);}
 <YYINITIAL> "union" {return tok(sym.UNION, null);}
 <YYINITIAL> "unsigned" {return tok(sym.UNSIGNED, null);}
+<YYINITIAL> "var" {return tok(sym.VAR, null);}
 <YYINITIAL> "void" {return tok(sym.VOID, null);}
 <YYINITIAL> "volatile" {return tok(sym.VOLATILE, null);}
 <YYINITIAL> "while" {return tok(sym.WHILE, null);}

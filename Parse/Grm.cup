@@ -66,7 +66,20 @@ non terminal Absyn.Stm jump_statement;
 non terminal Absyn.StmList statement_list;  
 non terminal Absyn.DecList declaration_list; 
 non terminal Absyn.Dec declaration;          
-non terminal Absyn.Exp expression_opt;     
+non terminal Absyn.Exp expression_opt;
+non terminal Symbol.Symbol name;
+non terminal Integer bitfield_list, bitfield_value;
+non terminal Integer struct_or_union;
+non terminal Absyn.Ty type, type_augments, brackets_list, pointer_list;
+non terminal Absyn.ExpList empty_array_type_list, expression_array_type_list;
+non terminal Absyn.Exp empty_array_type, expression_array_type;
+non terminal Absyn.Exp initialization, initializer;
+non terminal Absyn.ExpList initializer_list;
+non terminal Absyn.FieldList struct_or_union_declarator, struct_declaration_list;
+non terminal Absyn.FieldList parameters, parameter_list;
+non terminal Absyn.TypeList type_parameters, parameter_type_list;
+non terminal Absyn.EnumeratorList enumerator_list;
+non terminal Absyn.Enumerator enumerator;     
 non terminal Absyn.Exp          primary_expression, postfix_expression, unary_expression;
 non terminal Absyn.Exp          cast_expression, multiplicative_expression, additive_expression;
 non terminal Absyn.Exp          shift_expression, relational_expression, equality_expression;
@@ -78,7 +91,7 @@ non terminal Integer            unary_operator;
 non terminal Object             type_name;
 
 
-start with statement;
+start with declaration;
 
 Var ::=   ID:n
 	  {: RESULT = new Absyn.SimpleVar(nleft, sym(n)); :}
@@ -169,23 +182,23 @@ cast_expression ::=
 
 type_name ::=
       VOID
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("void"); :}
     | CHAR
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("char"); :}
     | SHORT
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("short"); :}
     | INT 
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("int"); :}
     | LONG
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("long"); :}
     | FLOAT
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("float"); :}
     | DOUBLE
-      {: RESULT = null; :}
-    | ENUM ID
-      {: RESULT = null; :}
-    | ID
-      {: RESULT = null; :}
+      {: RESULT = Symbol.Symbol.symbol("double"); :}
+    | ENUM ID:id
+      {: RESULT = Symbol.Symbol.symbol("enum " + id); :}
+    | ID:id
+      {: RESULT = Symbol.Symbol.symbol(id); :}
     ;
 
 multiplicative_expression ::= 
@@ -363,10 +376,195 @@ declaration_list ::=
       {: RESULT = new Absyn.DecList(d, dl); :}
     ;
 
-/* Placeholder for declaration rules  */
+/* Declaration rules */
 declaration ::=
-      INT ID:name SEMICOLON
+      VAR:v bitfield_list:bf type:t name:n initialization:i SEMICOLON
+      {: RESULT = new Absyn.VarDec(vleft, bf, t, n, i); :}
+    | FUN:f bitfield_list:bf type:t name:n parameters:p compound_statement:body
+      {: RESULT = new Absyn.FunctionDec(fleft, bf, t, n, p, false, body); :}
+    | FUN:f bitfield_list:bf type:t name:n type_parameters:p SEMICOLON
+      {: RESULT = new Absyn.FunctionDec(fleft, bf, t, n, null, false, null); :}
+    | TYPEDEF:td type:t name:n SEMICOLON
+      {: RESULT = new Absyn.TypedefDec(tdleft, t, n); :}
+    | bitfield_list:bf struct_or_union:su name:n struct_or_union_declarator:fields SEMICOLON
+      {: if (su == 1) { RESULT = new Absyn.StructDec(0, bf, n, fields); } else { RESULT = new Absyn.UnionDec(0, bf, n, fields); } :}
+    | ENUM:e ID:n LBRACE enumerator_list:enums RBRACE
+      {: RESULT = new Absyn.EnumDec(eleft, 0, sym(n), enums); :}
+    ;
+
+/* Name */
+name ::=
+      ID:n
+      {: RESULT = sym(n); :}
+    ;
+
+/* Bitfield list */
+bitfield_list ::=
+      /* empty */
+      {: RESULT = 0; :}
+    | bitfield_value:bf bitfield_list:rest
+      {: RESULT = bf | rest; :}
+    ;
+
+bitfield_value ::=
+      CONST
+      {: RESULT = Absyn.VarDec.CONST; :}
+    | VOLATILE
+      {: RESULT = Absyn.VarDec.VOLATILE; :}
+    | EXTERN
+      {: RESULT = Absyn.VarDec.EXTERN; :}
+    | STATIC
+      {: RESULT = Absyn.VarDec.STATIC; :}
+    | AUTO
+      {: RESULT = Absyn.VarDec.AUTO; :}
+    | REGISTER
+      {: RESULT = Absyn.VarDec.REGISTER; :}
+    ;
+
+/* Array types */
+empty_array_type_list ::=
+      empty_array_type:e
+      {: RESULT = new Absyn.ExpList(e, null); :}
+    | empty_array_type_list:list empty_array_type:e
+      {: RESULT = new Absyn.ExpList(e, list); :}
+    ;
+
+empty_array_type ::=
+      LBRACK RBRACK
       {: RESULT = null; :}
+    ;
+
+expression_array_type_list ::=
+      expression_array_type:e
+      {: RESULT = new Absyn.ExpList(e, null); :}
+    | expression_array_type_list:list expression_array_type:e
+      {: RESULT = new Absyn.ExpList(e, list); :}
+    ;
+
+expression_array_type ::=
+      LBRACK constant_expression:e RBRACK
+      {: RESULT = e; :}
+    ;
+
+/* Type specifications */
+type ::=
+      type_name:tn type_augments:aug
+      {: RESULT = aug; :}
+    | type_name:tn
+      {: Symbol.Symbol typeSym = (tn instanceof Symbol.Symbol) ? (Symbol.Symbol)tn : Symbol.Symbol.symbol(tn.toString()); RESULT = new Absyn.NameTy(0, typeSym, 0, null); :}
+    ;
+
+type_augments ::=
+      pointer_list:pl
+      {: RESULT = pl; :}
+    | brackets_list:bl
+      {: RESULT = bl; :}
+    | pointer_list:pl brackets_list:bl
+      {: RESULT = pl; :}
+    ;
+
+brackets_list ::=
+      empty_array_type_list:list
+      {: RESULT = new Absyn.NameTy(0, Symbol.Symbol.symbol("array"), 0, list); :}
+    | expression_array_type_list:list
+      {: RESULT = new Absyn.NameTy(0, Symbol.Symbol.symbol("array"), 0, list); :}
+    ;
+
+pointer_list ::=
+      TIMES
+      {: RESULT = new Absyn.NameTy(0, Symbol.Symbol.symbol("pointer"), 1, null); :}
+    | pointer_list:pl TIMES
+      {: RESULT = new Absyn.NameTy(0, Symbol.Symbol.symbol("pointer"), ((Absyn.NameTy)pl).pointerDepth + 1, null); :}
+    ;
+
+/* Initialization */
+initialization ::=
+      /* empty */
+      {: RESULT = null; :}
+    | ASSIGN initializer:initval
+      {: RESULT = initval; :}
+    ;
+
+/* Struct/Union */
+struct_or_union_declarator ::=
+      LBRACE struct_declaration_list:fields RBRACE
+      {: RESULT = fields; :}
+    ;
+
+enumerator_list ::=
+      enumerator:e
+      {: RESULT = new Absyn.EnumeratorList(e, null); :}
+    | enumerator_list:list COMMA enumerator:e
+      {: RESULT = new Absyn.EnumeratorList(e, list); :}
+    ;
+
+enumerator ::=
+      ID:n
+      {: RESULT = new Absyn.Enumerator(sym(n), null); :}
+    | ID:n ASSIGN constant_expression:e
+      {: RESULT = new Absyn.Enumerator(sym(n), e); :}
+    ;
+
+struct_declaration_list ::=
+      type:t name:n SEMICOLON
+      {: RESULT = new Absyn.FieldList(t, n, null); :}
+    | struct_declaration_list:list type:t name:n SEMICOLON
+      {: RESULT = new Absyn.FieldList(t, n, list); :}
+    ;
+
+struct_or_union ::=
+      STRUCT
+      {: RESULT = 1; :}
+    | UNION
+      {: RESULT = 2; :}
+    ;
+
+/* Parameters */
+type_parameters ::=
+      LPAREN parameter_type_list:params RPAREN
+      {: RESULT = params; :}
+    | LPAREN parameter_type_list:params COMMA ELIPSES RPAREN
+      {: RESULT = params; :}
+    | LPAREN RPAREN
+      {: RESULT = null; :}
+    ;
+
+parameters ::=
+      LPAREN parameter_list:params RPAREN
+      {: RESULT = params; :}
+    | LPAREN parameter_list:params COMMA ELIPSES RPAREN
+      {: RESULT = params; :}
+    | LPAREN RPAREN
+      {: RESULT = null; :}
+    ;
+
+parameter_list ::=
+      type:t name:n
+      {: RESULT = new Absyn.FieldList(t, n, null); :}
+    | parameter_list:list COMMA type:t name:n
+      {: RESULT = new Absyn.FieldList(t, n, list); :}
+    ;
+
+parameter_type_list ::=
+      type:t
+      {: RESULT = new Absyn.TypeList(t, null); :}
+    | parameter_type_list:list COMMA type:t
+      {: RESULT = new Absyn.TypeList(t, list); :}
+    ;
+
+/* Initializers */
+initializer_list ::=
+      initializer:initval
+      {: RESULT = new Absyn.ExpList(initval, null); :}
+    | initializer_list:list COMMA initializer:initval
+      {: RESULT = new Absyn.ExpList(initval, list); :}
+    ;
+
+initializer ::=
+      assignment_expression:e
+      {: RESULT = e; :}
+    | LBRACE initializer_list:list RBRACE
+      {: RESULT = new Absyn.SeqExp(0, list); :}
     ;
 
 statement_list ::=
@@ -424,3 +622,4 @@ jump_statement ::=
     | RETURN:r expression:e SEMICOLON
       {: RESULT = new Absyn.ReturnStm(rleft, e); :}
     ;
+

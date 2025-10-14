@@ -3,7 +3,7 @@ package Parse;
 public class Parse {
 
   public ErrorMsg.ErrorMsg errorMsg;
-  public Absyn.Stm absyn;
+  public Absyn.Dec absyn;
 
   public Parse(String filename) {
       errorMsg = new ErrorMsg.ErrorMsg(filename);
@@ -17,7 +17,7 @@ public class Parse {
       /* open input files, etc. here */
 
       try {
-	absyn = (Absyn.Stm)(parser./*debug_*/parse().value);
+	absyn = (Absyn.Dec)(parser./*debug_*/parse().value);
       } catch (Throwable e) {
 	e.printStackTrace();
 	throw new Error(e.toString());
