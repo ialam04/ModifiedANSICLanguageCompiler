@@ -88,7 +88,6 @@ non terminal Absyn.Exp          AND_expression, exclusive_OR_expression, inclusi
 non terminal Absyn.Exp          logical_AND_expression, logical_OR_expression, conditional_expression;
 non terminal Absyn.Exp          assignment_expression, expression, constant_expression;
 non terminal Absyn.ExpList      argument_expression_list;
-non terminal Integer            unary_operator;
 non terminal Object             type_name;
 
 /* Precedence for dangling else - shift (associate with nearest if) */
@@ -144,21 +143,6 @@ postfix_expression ::=
       {: RESULT = new Absyn.OpExp(eleft, Absyn.OpExp.POST_INC, e, null); :}
     | postfix_expression:e DECREMENT
       {: RESULT = new Absyn.OpExp(eleft, Absyn.OpExp.POST_DEC, e, null); :}
-    ;
-
-unary_operator ::=
-      BITWISEAND
-      {: RESULT = null; :}
-    | TIMES
-      {: RESULT = null; :}
-    | PLUS
-      {: RESULT = null; :}
-    | MINUS
-      {: RESULT = null; :}
-    | TILDE
-      {: RESULT = null; :}
-    | NOT
-      {: RESULT = null; :}
     ;
 
 unary_expression ::=

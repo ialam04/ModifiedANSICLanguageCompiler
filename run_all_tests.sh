@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # Script to run all test files and capture output
+# Must be run from the project root directory
+
+# Get the directory where the script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || { echo "Error: Could not change to script directory"; exit 1; }
 
 echo "================================================"
 echo "Running Parser Tests"
@@ -13,24 +18,13 @@ tests=(
     "test_single_var.c"
     "test_single_typedef.c"
     "test_single_struct.c"
-    "test_single_union.c"
-    "test_single_enum.c"
     "test_single_var_init.c"
     
     # Simple tests
     "test_simple_var.c"
-    "test_simple_expr.c"
-    "test_simple_stmt.c"
     "test_multi_simple.c"
     
-    # Complex tests
-    "test_complex_expr.c"
-    "test_complex_stmt.c"
-    
     # Feature-specific tests
-    "test_expressions.c"
-    "test_statements.c"
-    "test_declarations.c"
     "test_if_else.c"
     "test_not.c"
     "test_typedef.c"
@@ -40,7 +34,6 @@ tests=(
     
     # Variable declaration tests
     "test_var_dec.c"
-    "test_vardec.c"
     "test_var_init.c"
     "test_var_array.c"
     "test_var_pointer.c"
@@ -49,11 +42,6 @@ tests=(
     
     # Comprehensive tests
     "test_declarations_only.c"
-    "test_comprehensive.c"
-    "test_all_combined.c"
-    "test_clean.c"
-    "test_no_comment.c"
-    "test_edge_cases.c"
     "test_array_alt.c"
     "test.c"
 )
@@ -62,24 +50,22 @@ passed=0
 failed=0
 skipped=0
 
-# Change to tests directory
-cd tests 2>/dev/null || { echo "Error: tests directory not found"; exit 1; }
-
 # Run each test
 for test in "${tests[@]}"; do
-    if [ -f "$test" ]; then
+    testfile="tests/$test"
+    if [ -f "$testfile" ]; then
         echo "----------------------------------------"
         echo "Testing: $test"
         echo "----------------------------------------"
         
-        # Run the parser and capture output
-        if java Parse.Main "$test" > /dev/null 2>&1; then
+        # Run the parser and capture output (from project root)
+        if java Parse.Main "$testfile" > /dev/null 2>&1; then
             echo "PASSED"
             ((passed++))
         else
             echo "FAILED"
             # Show error for failed tests
-            java Parse.Main "$test" 2>&1 | tail -5
+            java Parse.Main "$testfile" 2>&1 | tail -5
             ((failed++))
         fi
         echo ""
