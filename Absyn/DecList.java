@@ -8,4 +8,8 @@ public class DecList {
         this.head = head;
         this.tail = tail;
     }
+    
+    public void accept(Visitor visit) {
+        visit.visit(this);
+    }
 }

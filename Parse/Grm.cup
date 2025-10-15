@@ -29,14 +29,14 @@ scan with {: return lexer.nextToken(); :};
 
 terminal String  ID;
 terminal String  STRING_LITERAL;
-terminal String  CHAR_LITERAL;          
+terminal Character CHAR_LITERAL;          
 terminal Integer DECIMAL_LITERAL;
 
 /* punctuation / keywords / operators (no value) */
 terminal INT, SEMICOLON, LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE, COMMA, COLON;
 terminal AUTO, BREAK, CASE, CONTINUE, DEFAULT, DO, ELSE, ENUM, EXTERN, FOR, GOTO, IF, REGISTER, RETURN,
          SHORT, SIGNED, DOUBLE, CONST, STRUCT, SIZEOF, LONG, FLOAT, UNION, VOID, VOLATILE,
-         UNSIGNED, STATIC, TYPEDEF, WHILE, CHAR;   /* include anything you actually use */
+         UNSIGNED, STATIC, TYPEDEF, WHILE, CHAR, NOT;   /* include anything you actually use */
 
 terminal PLUS, MINUS, TIMES, DIVIDE, MODULUS;
 terminal ASSIGN;
@@ -65,7 +65,8 @@ non terminal Absyn.Stm iteration_statement;
 non terminal Absyn.Stm jump_statement;
 non terminal Absyn.StmList statement_list;  
 non terminal Absyn.DecList declaration_list; 
-non terminal Absyn.Dec declaration;          
+non terminal Absyn.Dec declaration;
+non terminal Absyn.DecList program;          
 non terminal Absyn.Exp expression_opt;
 non terminal Symbol.Symbol name;
 non terminal Integer bitfield_list, bitfield_value;
@@ -91,7 +92,12 @@ non terminal Integer            unary_operator;
 non terminal Object             type_name;
 
 
-start with declaration;
+start with program;
+
+program ::=
+      declaration_list:dl
+      {: RESULT = dl; :}
+    ;
 
 Var ::=   ID:n
 	  {: RESULT = new Absyn.SimpleVar(nleft, sym(n)); :}
@@ -105,7 +111,7 @@ primary_expression ::=
     | STRING_LITERAL:str    
       {: RESULT = new Absyn.StringExp(strleft, str); :}
     | CHAR_LITERAL:c
-      {: RESULT = new Absyn.CharExp(cleft, c.length() > 1 ? c.charAt(1) : c.charAt(0)); :}
+      {: RESULT = new Absyn.CharExp(cleft, c.charValue()); :}
     | LPAREN expression:e RPAREN 
       {: RESULT = e; :}
     ;
@@ -148,6 +154,8 @@ unary_operator ::=
       {: RESULT = null; :}
     | TILDE
       {: RESULT = null; :}
+    | NOT
+      {: RESULT = null; :}
     ;
 
 unary_expression ::=
@@ -167,6 +175,8 @@ unary_expression ::=
       {: RESULT = new Absyn.OpExp(eleft, Absyn.OpExp.UNARY_MINUS, e, null); :}
     | TILDE cast_expression:e
       {: RESULT = new Absyn.OpExp(eleft, Absyn.OpExp.BITWISE_NOT, e, null); :}
+    | NOT cast_expression:e
+      {: RESULT = new Absyn.OpExp(eleft, Absyn.OpExp.NOT, e, null); :}
     | SIZEOF unary_expression:e
       {: RESULT = new Absyn.OpExp(eleft, Absyn.OpExp.SIZEOF, e, null); :}
     | SIZEOF LPAREN type_name:t RPAREN
@@ -386,7 +396,7 @@ declaration ::=
       {: RESULT = new Absyn.FunctionDec(fleft, bf, t, n, null, false, null); :}
     | TYPEDEF:td type:t name:n SEMICOLON
       {: RESULT = new Absyn.TypedefDec(tdleft, t, n); :}
-    | bitfield_list:bf struct_or_union:su name:n struct_or_union_declarator:fields SEMICOLON
+    | bitfield_list:bf struct_or_union:su name:n struct_or_union_declarator:fields
       {: if (su == 1) { RESULT = new Absyn.StructDec(0, bf, n, fields); } else { RESULT = new Absyn.UnionDec(0, bf, n, fields); } :}
     | ENUM:e ID:n LBRACE enumerator_list:enums RBRACE
       {: RESULT = new Absyn.EnumDec(eleft, 0, sym(n), enums); :}

@@ -19,6 +19,7 @@ public interface Visitor {
     // Statement and Declaration visitors (for future expansion)
     void visit(Stm stm);
     void visit(Dec dec);
+    void visit(DecList decList);
     
     // Specific statement visitors
     void visit(IfStm stm);

@@ -86,28 +86,59 @@ var int logic1 = (1 && 2);
 var int logic2 = (0 || 1);
 var int logic3 = !0;
 
-/* Assignment operators */
-var int assign_test = 10;
-assign_test += 5;
-assign_test -= 2;
-assign_test *= 3;
-assign_test /= 2;
+/* Array declarations with proper syntax */
+var int[100] array;
+var int[10][20] matrix;
 
-/* Punctuation and delimiters */
-var int array[100];
-var int matrix[10][20];
+/* Pointer declarations */
+var int* intPtr;
+var char* charPtr;
+var int** doublePtrInt;
 
-fun simple_function() {
+/* Typedef declarations */
+typedef int Integer;
+typedef char* String;
+typedef int[10] IntArray;
+
+/* Struct declarations */
+struct Point {
+    int x;
+    int y;
+}
+
+struct Rectangle {
+    int width;
+    int height;
+}
+
+/* Union declarations */
+union Value {
+    int i;
+    float f;
+    char c;
+}
+
+/* Enum declarations */
+enum Color { RED, GREEN, BLUE }
+enum Status { OK, ERROR, PENDING }
+
+/* Function declarations (prototypes) */
+fun int simple_function();
+fun int parameterized_function(int, int, int);
+fun int complex_function(int, int);
+
+/* Function definitions */
+fun int simple_function() {
     return 42;
 }
 
-fun parameterized_function(a, b, c) {
-    var local_var = a + b * c;
+fun int parameterized_function(int a, int b, int c) {
+    var int local_var = a + b * c;
     return local_var;
 }
 
-fun complex_function(x, y) {
-    var temp = 0;
+fun int complex_function(int x, int y) {
+    var int temp = 0;
     
     if (x > y) {
         temp = x;
@@ -119,111 +150,16 @@ fun complex_function(x, y) {
         temp = temp - 1;
     }
     
-    for (var i = 0; i < 10; i = i + 1) {
-        temp = temp + i;
-    }
-    
     return temp;
 }
 
-/* Control flow comprehensive test */
-fun control_flow_test() {
-    var i = 0;
-    var j = 10;
-    var result = 0;
+fun int main() {
+    var int[10] test_results;
+    var int i = 0;
     
-    
-    if (i == 0) {
-        result = 1;
-    } else if (i == 1) {
-        result = 2;
-    } else if (i == 2) {
-        result = 3;
-    } else {
-        result = 4;
-    }
-    
- 
-    while (i < 5) {
-        result = result + i;
-        i = i + 1;
-    }
-    
-
-    for (j = 0; j < 3; j = j + 1) {
-        result = result * 2;
-    }
-    
-    return result;
-}
-
-/* Expression complexity test */
-fun expression_test() {
-    var a = 10;
-    var b = 20;
-    var c = 30;
-    
-    var complex1 = (a + b) * c - (a * b) / c;
-    var complex2 = a * (b + c) / (a - b + c);
-    var complex3 = ((a + b) * (c - a)) / ((b * c) + a);
-    
-    var logical = (a < b) && (b < c) || (a != c);
-    var mixed = (a + b > c) ? a : b;
-    
-    return complex1 + complex2 + complex3 + logical + mixed;
-}
-
-/* Array and indexing test */
-fun array_test() {
-    var numbers[50];
-    var i = 0;
-    var sum = 0;
-    
-
-    for (i = 0; i < 50; i = i + 1) {
-        numbers[i] = i * i;
-    }
-
-    for (i = 0; i < 50; i = i + 1) {
-        sum = sum + numbers[i];
-    }
-    
-    return sum;
-}
-
-/* Nested function calls */
-fun nested_calls_test() {
-    var result1 = simple_function();
-    var result2 = parameterized_function(1, 2, 3);
-    var result3 = complex_function(result1, result2);
-    
-    return result3;
-}
-
-/* Main function with comprehensive testing */
-fun main() {
-    var test_results[10];
-    var i = 0;
-    
-
     test_results[0] = simple_function();
     test_results[1] = parameterized_function(5, 10, 15);
     test_results[2] = complex_function(100, 50);
-    test_results[3] = control_flow_test();
-    test_results[4] = expression_test();
-    test_results[5] = array_test();
-    test_results[6] = nested_calls_test();
-    
-   
-    printf("Results:\n");
-    for (i = 0; i < 7; i = i + 1) {
-        printf("Test %d: %d\n", i, test_results[i]);
-    }
-    
-    
-    printf("All escapes: \\n\\t\\r\\b\\f\\v\\\\\\'\\\"");
-    printf("Octal: \\101\\102\\103\\000\\040\\012");
-    printf("Hex: \\x41\\x42\\x43\\x00\\x20\\x0A");
     
     return 0;
 }

@@ -219,6 +219,20 @@ public class Print implements Visitor {
         out.print("(Declaration)");
     }
     
+    public void visit(DecList decList) {
+        out.print("(program");
+        for (DecList d = decList; d != null; d = d.tail) {
+            out.println();
+            indent += 2;
+            indent();
+            if (d.head != null) {
+                d.head.accept(this);
+            }
+            indent -= 2;
+        }
+        out.print(")");
+    }
+    
     // Specific statement visitor implementations
     public void visit(IfStm stm) {
         out.print("(if ");
