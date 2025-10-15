@@ -26,9 +26,9 @@ Additionally:
 ## Design Decisions
 
 ### 1. Program Start Symbol
-**Decision**: Use `program` as the start symbol that produces `declaration_list` instead of a single `declaration`.
+**Decision**: Use `program` as the start symbol that produces `declaration_list`.
 
-**Rationale**: This allows the parser to handle multiple declarations per file, which is necessary for realistic C programs. The `program` non-terminal acts as the handoff point to `declaration_list`, enabling comprehensive testing with files containing multiple functions, variables, and type definitions.
+**Rationale**: The `program` non-terminal acts as the handoff point to `declaration_list`. This was primarily a structural preference but the functionality still enables comprehensive parsing. 
 
 ### 2. Visitor Pattern for AST Traversal
 **Decision**: Implemented a Visitor interface for Print.java to interact with Absyn nodes.
