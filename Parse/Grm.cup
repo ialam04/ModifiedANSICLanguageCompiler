@@ -49,7 +49,7 @@ terminal ADDASSIGN, SUBASSIGN, MULASSIGN, DIVASSIGN, MODASSIGN,
 terminal INCREMENT, DECREMENT;
 terminal PERIOD, ARROW;
 terminal ELIPSES;                      
-terminal FUN, VAR;                     
+terminal FUN, VAR;
 
 non terminal Absyn.Exp          Exp;
 non terminal Absyn.Var          Var;
@@ -91,6 +91,9 @@ non terminal Absyn.ExpList      argument_expression_list;
 non terminal Integer            unary_operator;
 non terminal Object             type_name;
 
+/* Precedence for dangling else - shift (associate with nearest if) */
+precedence nonassoc IF;
+precedence nonassoc ELSE;
 
 start with program;
 
